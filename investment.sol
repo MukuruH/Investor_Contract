@@ -7,8 +7,8 @@ contract doublebleDouble {
 
     using SafeMath for uint256;
 
-    address owner;
-    uint256 currentbalance;
+    // address owner;
+    // uint256 currentbalance;
     event payment_recieved(address _investor, uint256 _amount, uint256 expectedReturn);
 
     // struct Investor {
@@ -20,9 +20,8 @@ contract doublebleDouble {
 
     mapping (address => uint) accountBalance;
 
-    modifier _onlyOwner() {
-        require 
-        _;
+    constructor ()  {
+        _planner = msg.sender;
     }
 
     function calculateReturn (uint256 _amount) pure public returns(uint256) {
@@ -32,7 +31,7 @@ contract doublebleDouble {
 
     function increaseInvestment(address _investor, uint256 _investment) internal returns(uint256) {
         // uint256 id =investors.push(Investor(msg.sender, uint256(accountBalance + _investment)))
-        return uint256(accountBalance[_investor] + _investment);
+        return uint256(accountBalance[_investor] += _investment);
 
     }
 
@@ -40,16 +39,22 @@ contract doublebleDouble {
 
     }
 
-    function invest(address bigSpender, uint256 _deposit) external checkBalance { 
-        require(msg.sender.balance >= _deposit,"You dont have enough currency to invest");
-        msg.sender
-        increaseInvestment(bigSpender, _deposit);
+    function invest() external payable checkBalance { 
+        if (msg.value < 0.05 ether) {
+            revert();
+            return "Payments should not be less than 0.05 ether"        
+        }
+        increaseInvestment(msg.sender, msg.value);
+        uint256 _deposit = msg.value;
         uint256 _profit = calculateReturn(_deposit);
-        increaseInvestment(bigSpender, uint256(_deposit.add(_profit)));
-        emit payment_recieved(bigSpender, _deposit, uint256(_deposit.add(_profit)));
-        serviceCharge
+        increaseInvestment(msg.sender, uint256(_deposit.add(_profit)));
+        emit payment_recieved(msg.sender, _deposit, uint256(_deposit.add(_profit)));
+        serviceCharge(_planner, uint256(_deposit.mul(0.1)));
  
     }
 
-    
+    function maintainanceFee () external {
+        require (msg.sender == _planner);
+
+    }
 }
