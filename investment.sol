@@ -1,16 +1,18 @@
-
-pragma solidity 0.7.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.6.0;
  
-import "./SafeMath.sol";
+import "github.com/OpenZeppelin/zeppelin-solidity/contracts/math/SafeMath.sol";
 
 contract doublebleDouble {
 
     using SafeMath for uint256;
 
     address payable owner;
+    address payable bigSpender;
     // uint256 currentbalance;
     event payment_recieved(address _investor, uint256 _amount, uint256 expectedReturn);
     uint256 maintainanceShedule;
+    
 
     // struct Investor {
     //     address payable _address;
@@ -30,40 +32,44 @@ contract doublebleDouble {
 
     mapping (address => uint) accountBalance;
     mapping (address => uint256) profitGained;
+    mapping (address => uint256) depositTime;
 
-    function calculateReturn (uint256 _amount) pure public returns(uint256) {
-        uint256 profitMargin = 0.2;
-        return uint256 = _amount.mul(profitMargin);
+    function calculateReturn (uint256 _amount) pure public returns(uint256 ) {
+        return  ((_amount.mul(2))/10);
     }
 
-    function increaseInvestment(address _investor, uint256 _investment) internal {
-        // uint256 id =investors.push(Investor(msg.sender, uint256(accountBalance + _investment)))
-        uint256(accountBalance[_investor] += _investment);
-    }
-
-    function serviceCharge(address payable _hardWorker, uint256 _serviceFee) internal {
-        _hardWorker.transfer(_serviceFee);
-    }
      
-    function() external payable {
+    function deposit(uint256 amount) external payable {
+        require(msg.value == amount);
         invest();
     }
 
-    function invest() internal payable checkBalance { 
-        if (msg.value < 0.05 ether) {
+    function invest() public payable { 
+        if (msg.value < 50000000 wei) {
             revert();
-            return "Payments should not be less than 0.05 ether"        
         }
         uint256 _deposit = msg.value; 
-        serviceCharge(owner, uint256(_deposit.mul(0.1)));
-        increaseInvestment(msg.sender, msg.value);
+        owner.transfer(uint256((_deposit.mul(1))/10));
+        accountBalance[msg.sender] += msg.value;
         uint256 _profit = calculateReturn(_deposit);
-        uint256(profitGained[msg.sender]) += profit;
+        profitGained[msg.sender] += _profit ;
+        depositTime[msg.sender] = now;
         emit payment_recieved(msg.sender, _deposit, uint256(_deposit.add(_profit)));
     }
-
-    function addReturn () payable external onlyOwner {
-        owner.transfer(msg.value);
-
+    
+    function checkAccount() external {
+        
     }
+
+    function collectReturn (uint256 _withdraw) payable external {
+        require(accountBalance[msg.sender] >= 1, "You do not have any cash with us");
+       require(accountBalance[msg.sender] <= _withdraw, "This amount exceeds your current account balance");
+       owner.transfer(100);
+    //   uint256 rewardTime = ((depositTime[msg.sender]) + 1 days); 
+        bigSpender = msg.sender;
+    //   if (now >= rewardTime){
+           bigSpender.transfer(_withdraw);
+    //   }
+       
+    }        
 }
