@@ -7,54 +7,63 @@ contract doublebleDouble {
 
     using SafeMath for uint256;
 
-    // address owner;
+    address payable owner;
     // uint256 currentbalance;
     event payment_recieved(address _investor, uint256 _amount, uint256 expectedReturn);
+    uint256 maintainanceShedule;
 
     // struct Investor {
     //     address payable _address;
     //     uint256 accountBalance;
     // }
 
-    // Investor[] public investors;    
+    // Investor[] public investors; 
+
+    constructor () public {
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner);
+        _;
+    }   
 
     mapping (address => uint) accountBalance;
-
-    constructor ()  {
-        _planner = msg.sender;
-    }
+    mapping (address => uint256) profitGained;
 
     function calculateReturn (uint256 _amount) pure public returns(uint256) {
         uint256 profitMargin = 0.2;
         return uint256 = _amount.mul(profitMargin);
     }
 
-    function increaseInvestment(address _investor, uint256 _investment) internal returns(uint256) {
+    function increaseInvestment(address _investor, uint256 _investment) internal {
         // uint256 id =investors.push(Investor(msg.sender, uint256(accountBalance + _investment)))
-        return uint256(accountBalance[_investor] += _investment);
-
+        uint256(accountBalance[_investor] += _investment);
     }
 
-    function serviceCharge(address payable _hardWorker, uint256 _investedAmount){
-
+    function serviceCharge(address payable _hardWorker, uint256 _serviceFee) internal {
+        _hardWorker.transfer(_serviceFee);
+    }
+     
+    function() external payable {
+        invest();
     }
 
-    function invest() external payable checkBalance { 
+    function invest() internal payable checkBalance { 
         if (msg.value < 0.05 ether) {
             revert();
             return "Payments should not be less than 0.05 ether"        
         }
+        uint256 _deposit = msg.value; 
+        serviceCharge(owner, uint256(_deposit.mul(0.1)));
         increaseInvestment(msg.sender, msg.value);
-        uint256 _deposit = msg.value;
         uint256 _profit = calculateReturn(_deposit);
-        increaseInvestment(msg.sender, uint256(_deposit.add(_profit)));
+        uint256(profitGained[msg.sender]) += profit;
         emit payment_recieved(msg.sender, _deposit, uint256(_deposit.add(_profit)));
-        serviceCharge(_planner, uint256(_deposit.mul(0.1)));
- 
     }
 
-    function maintainanceFee () external {
-        require (msg.sender == _planner);
+    function addReturn () payable external onlyOwner {
+        owner.transfer(msg.value);
 
     }
 }
