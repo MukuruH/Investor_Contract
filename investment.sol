@@ -45,8 +45,8 @@ contract doublebleDouble {
     }
 
     function invest() public payable { 
-        if (msg.value < 50000000 wei) {
-            revert();
+        if (msg.value < 5000 wei) {
+            revert("You cannot send less than 5000 wei");
         }
         uint256 _deposit = msg.value; 
         owner.transfer(uint256((_deposit.mul(1))/10));
@@ -65,11 +65,12 @@ contract doublebleDouble {
         require(accountBalance[msg.sender] >= 1, "You do not have any cash with us");
        require(accountBalance[msg.sender] <= _withdraw, "This amount exceeds your current account balance");
        owner.transfer(100);
-    //   uint256 rewardTime = ((depositTime[msg.sender]) + 1 days); 
+      uint256 rewardTime = ((depositTime[msg.sender]) + 1 days); 
         bigSpender = msg.sender;
-    //   if (now >= rewardTime){
-           bigSpender.transfer(_withdraw);
-    //   }
+      if (now >= rewardTime){
+           bigSpender.transfer(_withdraw.sub(100));
+           accountBalance[msg.sender] -= uint256(_withdraw.sub(100));
+      }
        
     }        
 }
